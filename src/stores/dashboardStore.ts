@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export interface DashboardFilters {
   dateRange: {
@@ -23,7 +23,7 @@ export const useDashboardStore = create<DashboardState>()(
   persist(
     (set) => ({
       sidebarOpen: true,
-      selectedView: "overview",
+      selectedView: 'overview',
       filters: {
         dateRange: {
           from: undefined,
@@ -37,7 +37,7 @@ export const useDashboardStore = create<DashboardState>()(
       setFilters: (filters) => set({ filters }),
     }),
     {
-      name: "dashboard-storage",
-    },
-  ),
+      name: 'dashboard-storage',
+    }
+  )
 );

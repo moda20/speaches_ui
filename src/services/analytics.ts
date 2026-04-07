@@ -1,4 +1,4 @@
-import api from "@/lib/api";
+import api from '@/lib/api';
 
 export interface AnalyticsData {
   visitors: number;
@@ -9,14 +9,14 @@ export interface AnalyticsData {
 
 export const analyticsService = {
   async getAnalytics(filters?: { startDate: string; endDate: string }) {
-    const response = await api.get<AnalyticsData>("/analytics", {
+    const response = await api.get<AnalyticsData>('/analytics', {
       params: filters,
     });
     return response.data;
   },
 
   async getTrends() {
-    const response = await api.get("/analytics/trends");
+    const response = await api.get('/analytics/trends');
     return response.data;
   },
 };

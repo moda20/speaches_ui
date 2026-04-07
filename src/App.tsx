@@ -1,14 +1,12 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { lazy, Suspense } from "react";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 
-const DashboardLayout = lazy(
-  () => import("@/components/layout/DashboardLayout"),
-);
-const Dashboard = lazy(() => import("@/pages/Dashboard"));
-const Analytics = lazy(() => import("@/pages/Analytics"));
-const Reports = lazy(() => import("@/pages/Reports"));
-const Settings = lazy(() => import("@/pages/Settings"));
+const DashboardLayout = lazy(() => import('@/components/layout/DashboardLayout'));
+const Dashboard = lazy(() => import('@/pages/Dashboard'));
+const Analytics = lazy(() => import('@/pages/Analytics'));
+const Reports = lazy(() => import('@/pages/Reports'));
+const Settings = lazy(() => import('@/pages/Settings'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,23 +20,19 @@ const queryClient = new QueryClient({
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: (
       <Suspense
-        fallback={
-          <div className="flex h-screen items-center justify-center">
-            Loading...
-          </div>
-        }
+        fallback={<div className="flex h-screen items-center justify-center">Loading...</div>}
       >
         <DashboardLayout />
       </Suspense>
     ),
     children: [
       { index: true, element: <Dashboard /> },
-      { path: "analytics", element: <Analytics /> },
-      { path: "reports", element: <Reports /> },
-      { path: "settings", element: <Settings /> },
+      { path: 'analytics', element: <Analytics /> },
+      { path: 'reports', element: <Reports /> },
+      { path: 'settings', element: <Settings /> },
     ],
   },
 ]);

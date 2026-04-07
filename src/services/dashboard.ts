@@ -1,4 +1,4 @@
-import api from "@/lib/api";
+import api from '@/lib/api';
 
 export interface DashboardMetrics {
   totalUsers: number;
@@ -9,12 +9,12 @@ export interface DashboardMetrics {
 
 export const dashboardService = {
   async getMetrics() {
-    const response = await api.get<DashboardMetrics>("/metrics");
+    const response = await api.get<DashboardMetrics>('/metrics');
     return response.data;
   },
 
   async getRecentActivity() {
-    const response = await api.get("/activity/recent");
+    const response = await api.get('/activity/recent');
     return response.data;
   },
 };
