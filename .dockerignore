@@ -1,0 +1,46 @@
+# Dependencies
+node_modules
+bun.lockb
+
+# Build output
+dist
+out
+
+# Development
+.env
+.env.local
+.env.*.local
+
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+CONTRIBUTING.md
+ARCHITECTURE.md
+PROJECT_SETUP_PLAN.md
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage
+*.lcov
+
+# Logs
+logs
+*.log
+
+# Cache
+.cache
+.eslintcache
+*.tsbuildinfo
