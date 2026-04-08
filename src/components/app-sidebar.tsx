@@ -1,13 +1,4 @@
-import {
-  LayoutDashboard,
-  BarChart3,
-  FileText,
-  Settings,
-  ChevronUp,
-  Home,
-  TrendingUp,
-  Package,
-} from 'lucide-react';
+import { LayoutDashboard, ChevronUp, Home, TrendingUp, Package } from 'lucide-react';
 
 import {
   Sidebar,
@@ -29,34 +20,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/theme-toggle';
-
-const navigation = [
-  {
-    title: 'Main',
-    items: [
-      {
-        title: 'Dashboard',
-        url: '/',
-        icon: LayoutDashboard,
-      },
-      {
-        title: 'Analytics',
-        url: '/analytics',
-        icon: BarChart3,
-      },
-      {
-        title: 'Reports',
-        url: '/reports',
-        icon: FileText,
-      },
-      {
-        title: 'Settings',
-        url: '/settings',
-        icon: Settings,
-      },
-    ],
-  },
-];
+import { Link, useLocation } from 'react-router-dom';
+import { navigation } from '@/config/navigation';
 
 const usage = {
   title: 'Usage',
@@ -80,6 +45,8 @@ const usage = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const location = useLocation();
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -127,11 +94,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <SidebarMenu>
                 {section.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <a href={item.url}>
+                    <SidebarMenuButton asChild isActive={location.pathname === item.url}>
+                      <Link to={item.url}>
                         <item.icon />
                         <span>{item.title}</span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -140,7 +107,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroup>
         ))}
 
-        <SidebarGroup>
+       {/* <SidebarGroup>
           <SidebarGroupLabel>Usage</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -159,16 +126,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
-        </SidebarGroup>
+        </SidebarGroup>*/}
       </SidebarContent>
 
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton>
-              <ThemeToggle />
-              <span>Toggle Theme</span>
-            </SidebarMenuButton>
+            <ThemeToggle />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

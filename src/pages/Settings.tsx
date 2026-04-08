@@ -11,9 +11,23 @@ import {
 } from '@/components/ui/select';
 import { useSettingsStore } from '@/stores';
 import { useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { healthService } from '@/services/health';
+import { Badge } from '@/components/ui/badge';
+import { CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
 
 export default function Settings() {
   const { language, timezone, dateFormat, density, updateSettings } = useSettingsStore();
+
+  const {
+    data: healthStatus,
+    isLoading: isHealthLoading,
+    error: healthError,
+  } = useQuery({
+    queryKey: ['health'],
+    queryFn: () => healthService.getHealthStatus(),
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
 
   const handleLanguageChange = useCallback(
     (value: string) => {
@@ -44,11 +58,81 @@ export default function Settings() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 pl-2 space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-muted-foreground">Manage your application preferences</p>
       </div>
+
+
+      <Card>
+        <CardHeader>
+          <CardTitle>System Health</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {isHealthLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <span className="ml-2 text-muted-foreground">Checking health status...</span>
+            </div>
+          ) : healthError ? (
+            <div className="flex items-center gap-2 p-4 bg-destructive/10 text-destructive rounded-lg">
+              <XCircle className="h-5 w-5" />
+              <div>
+                <p className="font-medium">Health Check Failed</p>
+                <p className="text-sm opacity-80">Unable to connect to the API server</p>
+              </div>
+            </div>
+          ) : healthStatus ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-950 text-green-900 dark:text-green-100 rounded-lg border border-green-200 dark:border-green-800">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5" />
+                  <div>
+                    <p className="font-medium">System Healthy</p>
+                    <p className="text-sm opacity-80">All services are running normally</p>
+                  </div>
+                </div>
+                <Badge variant="default">Online</Badge>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">API Status:</span>
+                  <span className="flex items-center gap-2 text-green-600">
+                    <CheckCircle className="h-4 w-4" />
+                    Connected
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">API URL:</span>
+                  <span className="font-mono text-xs bg-muted px-2 py-1 rounded">
+                    {import.meta.env.VITE_API_URL || 'Not configured'}
+                  </span>
+                </div>
+                {healthStatus.version && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Version:</span>
+                    <Badge variant="outline">{healthStatus.version}</Badge>
+                  </div>
+                )}
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Last Checked:</span>
+                  <span className="text-muted-foreground">{new Date().toLocaleTimeString()}</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 p-4 bg-yellow-50 dark:bg-yellow-950 text-yellow-900 dark:text-yellow-100 rounded-lg border border-yellow-200 dark:border-yellow-800">
+              <Clock className="h-5 w-5" />
+              <div>
+                <p className="font-medium">Health Status Unknown</p>
+                <p className="text-sm opacity-80">Unable to determine system health</p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

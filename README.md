@@ -1,56 +1,253 @@
-# Dashboard Application
+# Speaches UI
 
-A modern, scalable dashboard application built with React 19, Vite 8, TypeScript, and shadcn/ui components.
+A modern web interface for the [Speaches](https://github.com/speaches-ai/speaches) API - an OpenAI-compatible speech AI server. This dashboard provides a comprehensive UI for speech recognition, synthesis, and analysis features.
 
 ## Features
 
-- **Modern Tech Stack**: React 19, Vite 8, TypeScript, and Bun for fast development
-- **Component Library**: Built with shadcn/ui for accessible, customizable components
-- **State Management**: Zustand for lightweight, efficient state management
-- **Data Fetching**: TanStack Query for powerful data fetching and caching
-- **Routing**: React Router v7 for client-side routing
-- **Forms**: React Hook Form with Zod validation
-- **Charts**: Recharts for data visualization
-- **Theme Support**: Dark mode with system preference detection
-- **Responsive Design**: Mobile-first approach with responsive sidebar
-- **Performance Optimized**: Code splitting, lazy loading, and React optimizations
+### 🎤 Audio Transcription & Translation
 
-## Prerequisites
+- **Speech-to-Text**: Transcribe audio files with support for multiple formats (MP3, WAV, FLAC, M4A)
+- **Translation**: Translate audio content between languages
+- **Multiple Response Formats**: Text, JSON, verbose JSON, SRT, and VTT
+- **Timestamp Support**: Segment-level and word-level timestamps
+- **Speaker Diarization**: Identify and track different speakers in audio
 
-- **Node.js**: 20.19 or higher
-- **Bun**: Latest stable version (recommended for faster installs)
-- **npm** or **yarn** (alternative package managers)
+### 🔊 Text-to-Speech Synthesis
+
+- **Natural Voice Generation**: Synthesize speech from text using AI models
+- **Multiple Output Formats**: MP3, WAV, FLAC, Opus, PCM, AAC
+- **Voice Selection**: Choose from available voice profiles
+- **Speed & Sample Rate Control**: Customize audio output characteristics
+- **Batch Processing**: Synthesize multiple text inputs at once
+- **Streaming Support**: Real-time audio streaming with SSE
+
+### 💬 Voice Chat
+
+- **Real-time Audio Chat**: Interactive voice conversations with AI
+- **Dual Input Support**: Both audio (microphone) and text input
+- **Streaming Responses**: Real-time response streaming
+- **Chat History**: Maintain conversation context
+- **System Prompts**: Configure AI behavior and personality
+- **Temperature Control**: Adjust response randomness
+
+### 📊 Model Management
+
+- **Local Models**: View, manage, and control local AI models
+- **Remote Registry**: Browse and download models from the registry
+- **Model Types**: Support for multiple model categories:
+  - Automatic Speech Recognition (ASR)
+  - Text-to-Speech (TTS)
+  - Speaker Embedding
+  - Voice Activity Detection (VAD)
+- **Load/Unload Control**: Manage model memory usage
+- **Model Details**: View model specifications and metadata
+
+### 🎯 Voice Activity Detection
+
+- **Silence Detection**: Identify speech and silence segments in audio
+- **Adjustable Thresholds**: Fine-tune detection sensitivity
+- **Segment Analysis**: View detailed timestamp information
+- **Visual Timeline**: Interactive visualization of speech segments
+- **Export Options**: Save detection results
+
+### 👥 Speaker Diarization
+
+- **Speaker Identification**: Distinguish between different speakers
+- **Speaker Labeling**: Assign names to detected speakers
+- **Timeline Visualization**: Visual representation of speaker changes
+- **Known Speakers**: Provide reference samples for better accuracy
+- **Multiple Formats**: Export in JSON or RTTM format
+
+### 🔍 Speaker Embeddings
+
+- **Voice Fingerprinting**: Generate unique voice embeddings
+- **Embedding Visualization**: Visual representation of voice characteristics
+- **Comparison Tools**: Compare embeddings for speaker identification
+- **Vector Export**: Export embedding data for further analysis
+
+### 🌐 Realtime API
+
+- **WebRTC Support**: Real-time audio streaming via WebRTC
+- **Low Latency**: Minimal delay for interactive applications
+- **Connection Monitoring**: Track connection status and quality
+- **Audio Level Visualization**: Real-time audio level indicators
+
+### ⚙️ System Health
+
+- **Health Monitoring**: System status and API connectivity
+- **Version Information**: Track server and model versions
+- **Diagnostics**: Troubleshoot and monitor system performance
+
+## API Overview
+
+Speaches UI connects to the Speaches API, which provides OpenAI-compatible endpoints for speech AI tasks.
+
+### Base API
+
+```
+POST /health
+```
+
+Health check endpoint for monitoring system status.
+
+### Models API
+
+```
+GET  /v1/models              # List local models (filter by task)
+GET  /v1/models/{model_id}   # Get model details
+POST /v1/models/{model_id}   # Download remote model
+DELETE /v1/models/{model_id} # Delete model
+GET  /v1/registry            # List remote models
+GET  /api/ps                 # Get running models (experimental)
+POST /api/ps/{model_id}      # Load model into memory
+DELETE /api/ps/{model_id}    # Unload model from memory
+```
+
+### Audio Models & Voices
+
+```
+GET /v1/audio/models  # List local audio models
+GET /v1/audio/voices  # List local audio voices
+```
+
+### Transcription & Translation
+
+```
+POST /v1/audio/transcriptions  # Transcribe audio file
+POST /v1/audio/translations    # Translate audio file
+```
+
+**Supported Parameters:**
+
+- `file`: Audio file to process
+- `model`: Model to use for processing
+- `language`: Source language code
+- `response_format`: text, json, verbose_json, srt, vtt
+- `timestamp_granularities`: segment, word
+- `temperature`: Sampling temperature (0-1)
+
+### Speech Synthesis
+
+```
+POST /v1/audio/speech
+```
+
+**Supported Parameters:**
+
+- `input`: Text to synthesize
+- `model`: TTS model to use
+- `voice`: Voice to use
+- `response_format`: mp3, wav, flac, opus, pcm, aac
+- `speed`: Speed factor (0.25-4.0)
+- `sample_rate`: Output sample rate
+
+### Voice Chat
+
+```
+POST /v1/chat/completions
+```
+
+**Supported Parameters:**
+
+- `messages`: Array of chat messages
+- `model`: Chat model to use
+- `stream`: Enable streaming responses
+- `temperature`: Sampling temperature
+- `audio`: Audio input/output configuration
+- `functions`: Tool calling support
+
+### Speaker Embedding
+
+```
+POST /v1/audio/speech/embedding
+```
+
+Create speaker embeddings from audio files.
+
+### Voice Activity Detection
+
+```
+POST /v1/audio/speech/timestamps
+```
+
+**Supported Parameters:**
+
+- `file`: Audio file to analyze
+- `model`: VAD model to use
+- `threshold_speech`: Speech detection threshold
+- `threshold_silence`: Silence detection threshold (negative)
+- `min_speech_duration_ms`: Minimum speech duration
+- `max_speech_duration_ms`: Maximum speech duration
+- `min_silence_duration_ms`: Minimum silence duration
+- `speech_pad_ms`: Padding around speech segments
+
+### Speaker Diarization
+
+```
+POST /v1/audio/diarization
+```
+
+**Supported Parameters:**
+
+- `file`: Audio file to diarize
+- `model`: Diarization model to use
+- `known_speakers`: Known speaker names
+- `known_speaker_references`: Reference audio for known speakers
+- `response_format`: json, rttm
+
+### Realtime WebRTC
+
+```
+POST /v1/realtime
+```
+
+Establish WebRTC connection for real-time audio streaming.
+
+## Configuration
+
+### Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+VITE_API_URL=http://localhost:3000
+VITE_APP_NAME=Speaches UI
+```
+
+**Required Variables:**
+
+- `VITE_API_URL`: URL of the Speaches API server
+- `VITE_APP_NAME`: Application name (displayed in UI)
+
+**Optional Variables:**
+
+- `VITE_AUTH_TOKEN`: Bearer token for API authentication
+
+### Authentication
+
+The Speaches API supports Bearer token authentication. Configure your token via:
+
+- Environment variable: `VITE_AUTH_TOKEN`
+- localStorage key: `authToken`
+- UI Settings page
 
 ## Installation
 
-### Using Bun (Recommended)
+### Prerequisites
+
+- **Bun**: Latest stable version (recommended)
+- **Speaches Server**: Running instance of [Speaches](https://github.com/speaches-ai/speaches)
 
 ```bash
+# Clone the repository
+git clone https://github.com/moda20/speaches_ui.git
+cd speaches_ui
+
 # Install dependencies
 bun install
 
 # Start development server
 bun run dev
-```
-
-### Using npm
-
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-```
-
-### Using yarn
-
-```bash
-# Install dependencies
-yarn install
-
-# Start development server
-yarn dev
 ```
 
 ## Development
@@ -81,191 +278,225 @@ bun run test
 
 # Run tests in watch mode
 bun run test:watch
-```
-
-## Project Structure
-
-```
-src/
-├── components/
-│   ├── ui/              # shadcn/ui components
-│   ├── layout/          # Layout components (Sidebar, Header, etc.)
-│   └── features/        # Feature-specific components
-├── pages/               # Route-level components
-│   ├── Dashboard.tsx
-│   ├── Analytics.tsx
-│   ├── Reports.tsx
-│   └── Settings.tsx
-├── hooks/               # Custom React hooks
-├── lib/                 # Utility functions
-│   ├── api.ts           # API client configuration
-│   ├── utils.ts         # Utility functions
-│   ├── cn.ts            # Class name utility
-│   └── env.ts           # Environment variables
-├── stores/              # Zustand stores
-│   ├── dashboardStore.ts
-│   ├── uiStore.ts
-│   └── settingsStore.ts
-├── services/            # API services
-│   ├── dashboard.ts
-│   ├── analytics.ts
-│   └── reports.ts
-├── types/               # TypeScript types
-└── styles/              # Global styles
-```
-
-## Configuration
-
-### Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-VITE_API_URL=http://localhost:3000/api
-VITE_APP_NAME=Dashboard Application
-```
-
-### Production Environment
-
-Create a `.env.production` file:
-
-```env
-VITE_API_URL=https://api.example.com/api
-VITE_APP_NAME=Dashboard Application
-```
-
-## Key Features
-
-### Dashboard
-
-- Quick stats cards with metrics and KPIs
-- Recent activity timeline
-- Quick action buttons
-- Loading and error states with skeleton components
-
-### Analytics
-
-- Interactive charts using Recharts
-- Traffic overview with line charts
-- User growth with bar charts
-- Responsive chart containers
-
-### Reports
-
-- Data table with sorting and filtering
-- Status badges with color coding
-- Download and export functionality
-- Report management interface
-
-### Settings
-
-- General settings (language, timezone, date format)
-- Theme settings (dark/light mode)
-- Display settings (density, font size)
-- Form validation with Zod
-- Persistent settings with localStorage
-
-## Performance Optimizations
-
-- **Code Splitting**: Route-based code splitting with lazy loading
-- **Bundle Analysis**: Visualizer for bundle size analysis
-- **CSS Code Splitting**: Automatic CSS code splitting
-- **Component Optimization**: React.memo, useMemo, and useCallback
-- **Virtualization**: Support for large list virtualization with @tanstack/react-virtual
-
-## Testing
-
-The project is configured with Vitest and React Testing Library:
-
-```bash
-# Run tests
-bun run test
-
-# Run tests in watch mode
-bun run test:watch
 
 # Run tests with UI
 bun run test:ui
 ```
 
-## Build & Deployment
+## Deployment
 
-### Production Build
+### Docker Deployment (Recommended)
+
+Build and run the application using Docker:
 
 ```bash
-# Create production build
-bun run build
+# Build the Docker image
+docker build -t speaches-ui .
 
-# Preview production build
-bun run preview
+# Run the container
+docker run -d -p 80:80 --name speaches-ui speaches-ui
 ```
 
-### Bundle Analysis
+The Dockerfile uses a multi-stage build:
 
-After building, open `dist/stats.html` to view the bundle analysis visualization.
+- **Build stage**: Uses `oven/bun:1` to build the React application
+- **Production stage**: Uses `nginx:alpine` to serve the static files
 
-### Deployment
+**Custom Configuration:**
+
+To customize the API URL at runtime:
+
+```bash
+docker run -d -p 80:80 \
+  -e VITE_API_URL=https://your-speaches-api.com/api \
+  --name speaches-ui \
+  speaches-ui
+```
+
+### Platform Deployment
 
 The application can be deployed to various platforms:
 
-- **Vercel**: Automatic deployment from Git
-- **Netlify**: Simple drag-and-drop or Git deployment
-- **Docker**: Containerized deployment
-- **Static Hosting**: Deploy the `dist/` folder
+- **Vercel**: Automatic deployment from Git repository
+- **Netlify**: Drag-and-drop or Git deployment
+- **Docker**: Containerized deployment (recommended)
+- **Static Hosting**: Deploy the `dist/` folder to any static host
 
-## Contributing
+**Vercel Deployment:**
 
-Contributions are welcome! Please read the [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+```bash
+# Install Vercel CLI
+npm i -g vercel
 
-## Architecture
+# Deploy
+vercel
+```
 
-For detailed architecture information, see [ARCHITECTURE.md](./ARCHITECTURE.md).
+**Netlify Deployment:**
 
-## Tech Stack
+```bash
+# Install Netlify CLI
+npm i -g netlify-cli
 
-### Core
+# Deploy
+netlify deploy --prod
+```
 
-- **React 19**: Latest React with concurrent features
-- **Vite 8**: Fast build tool with HMR
-- **TypeScript**: Type-safe development
-- **Bun**: Fast package manager (optional)
+## Technical Stack
 
-### Routing & State
+### Core Framework
 
-- **React Router v7**: Client-side routing
-- **Zustand**: Lightweight state management
-- **TanStack Query**: Data fetching and caching
+- **React 19**: Latest React with concurrent features and automatic batching
+- **Vite 8**: Lightning-fast build tool with HMR and optimized bundling
+- **TypeScript**: Full type safety across the application
+- **Bun**: Ultra-fast package manager and runtime
 
-### UI & Styling
+### Routing & Navigation
 
-- **shadcn/ui**: Accessible component library
-- **Tailwind CSS**: Utility-first CSS framework
-- **Lucide React**: Icon library
-- **class-variance-authority**: Component variants
-- **clsx & tailwind-merge**: Class name utilities
+- **React Router v7**: Client-side routing with lazy loading
+- **Route-based code splitting**: Automatic code splitting for optimal performance
 
-### Forms & Validation
+### State Management
 
-- **React Hook Form**: Form management
-- **Zod**: Schema validation
-- **@hookform/resolvers**: Zod resolver for React Hook Form
+- **Zustand**: Lightweight, performant state management
+- **TanStack Query v5**: Powerful data fetching, caching, and synchronization
+- **React Hook Form**: Efficient form state management
+- **Zod**: Runtime type validation and schema validation
+
+### UI Components & Styling
+
+- **shadcn/ui**: Beautiful, accessible component library built on Radix UI
+- **Tailwind CSS**: Utility-first CSS framework for rapid styling
+- **Radix UI**: Unstyled, accessible component primitives
+- **Lucide React**: Consistent icon library
+- **class-variance-authority**: Component variant management
+- **clsx & tailwind-merge**: Conditional class name utilities
+
+### Data Fetching & API
+
+- **Axios**: Promise-based HTTP client with interceptors
+- **OpenAPI Types**: Auto-generated TypeScript types from OpenAPI spec
+- **Bearer Token Authentication**: Secure API communication
+
+### Audio Processing
+
+- **react-h5-audio-player**: Customizable HTML5 audio player
+- **react-dropzone**: Drag-and-drop file upload
+- **wavesurfer.js**: Audio waveform visualization
+- **@wavesurfer/react**: React wrapper for wavesurfer.js
 
 ### Data Visualization
 
-- **Recharts**: Chart library for React
+- **Recharts**: Declarative charting library for React
+- **Interactive charts**: Line, bar, area, and pie charts
+
+### Form Handling
+
+- **React Hook Form**: Performant form library with minimal re-renders
+- **Zod**: Schema-first validation
+- **@hookform/resolvers**: Seamless Zod integration
 
 ### Development Tools
 
-- **ESLint**: Code linting
-- **Prettier**: Code formatting
-- **Vitest**: Testing framework
-- **React Testing Library**: Component testing
-- **TypeScript ESLint**: TypeScript linting
+- **ESLint**: Code linting with TypeScript support
+- **Prettier**: Code formatting with consistent style
+- **Vitest**: Fast unit testing framework
+- **React Testing Library**: Component testing utilities
+- **TypeScript ESLint**: TypeScript-specific linting rules
+- **PostCSS**: CSS transformation with autoprefixer
+- **Tailwind CSS**: Utility-first CSS framework
+
+### Performance Optimizations
+
+- **Code Splitting**: Route-based code splitting with React.lazy()
+- **Lazy Loading**: On-demand component loading
+- **Bundle Analysis**: Visualizer for bundle size optimization
+- **React.memo**: Component memoization to prevent unnecessary re-renders
+- **useMemo & useCallback**: Hook optimizations for expensive computations
+- **TanStack Query Caching**: Automatic data caching and background refetching
+- **Virtualization**: Support for large lists with @tanstack/react-virtual
+
+## Project Structure
+
+```
+speaches_ui/
+├── src/
+│   ├── components/
+│   │   ├── ui/                    # shadcn/ui components
+│   │   ├── features/
+│   │   │   ├── audio/             # Audio player & visualizer components
+│   │   │   ├── upload/            # File upload components
+│   │   │   ├── chat/              # Voice chat components
+│   │   │   ├── models/            # Model management components
+│   │   │   └── transcription/     # Transcription components
+│   │   └── layout/                # Layout components (Sidebar, Header)
+│   ├── pages/
+│   │   ├── Models.tsx             # Model management
+│   │   ├── Transcription.tsx      # Audio transcription
+│   │   ├── Synthesis.tsx          # Text-to-speech
+│   │   ├── VoiceChat.tsx          # Voice chat
+│   │   ├── Embeddings.tsx         # Speaker embeddings
+│   │   ├── VAD.tsx                # Voice activity detection
+│   │   ├── Diarization.tsx        # Speaker diarization
+│   │   ├── Realtime.tsx           # WebRTC realtime
+│   │   ├── Dashboard.tsx          # Main dashboard
+│   │   ├── Analytics.tsx          # Analytics
+│   │   ├── Reports.tsx            # Reports
+│   │   └── Settings.tsx           # Settings
+│   ├── services/
+│   │   ├── models.ts              # Model API calls
+│   │   ├── transcription.ts       # Transcription API calls
+│   │   ├── synthesis.ts           # Synthesis API calls
+│   │   ├── voiceChat.ts           # Voice chat API calls
+│   │   ├── embeddings.ts          # Embedding API calls
+│   │   ├── vad.ts                 # VAD API calls
+│   │   ├── diarization.ts         # Diarization API calls
+│   │   ├── realtime.ts            # WebRTC API calls
+│   │   └── health.ts              # Health check API calls
+│   ├── hooks/
+│   │   ├── useAudioRecorder.ts    # Audio recording hook
+│   │   ├── useFileUpload.ts       # File upload hook
+│   │   └── useAudioPlayer.ts      # Audio player hook
+│   ├── stores/
+│   │   ├── modelsStore.ts         # Model state
+│   │   ├── audioStore.ts          # Audio state
+│   │   └── chatStore.ts           # Chat state
+│   ├── types/
+│   │   ├── api.ts                 # API types (from OpenAPI)
+│   │   ├── models.ts              # Model types
+│   │   ├── transcription.ts       # Transcription types
+│   │   └── synthesis.ts           # Synthesis types
+│   ├── lib/
+│   │   ├── api.ts                 # Axios instance configuration
+│   │   ├── env.ts                 # Environment variables
+│   │   ├── utils.ts               # Utility functions
+│   │   └── audio-utils.ts         # Audio utilities
+│   ├── App.tsx                    # Application root
+│   └── main.tsx                   # Entry point
+├── public/                        # Static assets
+├── Dockerfile                     # Docker configuration
+├── nginx.conf                     # Nginx configuration
+├── package.json                   # Dependencies
+├── tsconfig.json                  # TypeScript config
+├── vite.config.ts                 # Vite config
+├── tailwind.config.ts             # Tailwind config
+├── openapi.json                   # OpenAPI specification
+└── IMPLEMENTATION_PLAN.md         # Implementation guide
+```
+
+## Contributing
+
+Contributions are welcome! Please read our contributing guidelines before submitting pull requests.
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Links
+
+- [Speaches API Documentation](https://speaches.ai/api/)
+- [Speaches GitHub Repository](https://github.com/speaches-ai/speaches)
 
 ## Support
 
-For issues and questions, please open an issue on the GitHub repository.
+For issues, questions, or contributions, please visit our [GitHub repository](https://github.com/moda20/speaches_ui).
