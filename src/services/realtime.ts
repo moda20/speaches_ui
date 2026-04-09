@@ -1,4 +1,5 @@
 import api from '@/lib/api';
+import { useWorkspaceStore } from '@/stores/workspaceStore';
 
 export interface RealtimeConnectionOptions {
   model: string;
@@ -27,8 +28,10 @@ class RealtimeServiceImpl implements RealtimeService {
 
     this.connectionId = response.data.connection_id;
 
-    // Connect via WebSocket for real-time streaming
-    const wsUrl = `${import.meta.env.VITE_API_URL?.replace('http', 'ws') || 'ws://localhost:3000'}/v1/realtime/${this.connectionId}`;
+    const workspaceApiUrl = useWorkspaceStore.getState().getCurrentApiUrl();
+    const wsBaseUrl = workspaceApiUrl.replace('http', 'ws').replace('https', 'wss');
+
+    const wsUrl = `${wsBaseUrl}/v1/realtime/${this.connectionId}`;
     this.ws = new WebSocket(wsUrl);
 
     return new Promise((resolve, reject) => {

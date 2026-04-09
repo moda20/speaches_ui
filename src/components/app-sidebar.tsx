@@ -22,6 +22,9 @@ import {
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Link, useLocation } from 'react-router-dom';
 import { navigation } from '@/config/navigation';
+import { useWorkspaceStore } from '@/stores/workspaceStore';
+import { useQueryClient } from '@tanstack/react-query';
+import { Badge } from '@/components/ui/badge';
 
 const usage = {
   title: 'Usage',
@@ -46,6 +49,14 @@ const usage = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const location = useLocation();
+  const queryClient = useQueryClient();
+  const { workspaces, currentWorkspaceId, setCurrentWorkspaceId, currentWorkspace } =
+    useWorkspaceStore();
+
+  const handleWorkspaceChange = (workspaceId: string) => {
+    setCurrentWorkspaceId(workspaceId);
+    queryClient.invalidateQueries();
+  };
 
   return (
     <Sidebar {...props}>
@@ -62,8 +73,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <LayoutDashboard className="size-4" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">Dashboard</span>
-                    <span className="truncate text-xs text-muted-foreground">Workspace</span>
+                    <span className="truncate font-semibold">
+                      {currentWorkspace?.name || 'Dashboard'}
+                    </span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {currentWorkspace?.isDefault ? (
+                        <Badge variant="secondary" className="text-xs">
+                          Default
+                        </Badge>
+                      ) : (
+                        'Workspace'
+                      )}
+                    </span>
                   </div>
                   <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
@@ -74,12 +95,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 align="end"
                 sideOffset={4}
               >
-                <DropdownMenuItem>
-                  <span>Workspace 1</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <span>Workspace 2</span>
-                </DropdownMenuItem>
+                {workspaces.map((workspace) => (
+                  <DropdownMenuItem
+                    key={workspace.id}
+                    onClick={() => handleWorkspaceChange(workspace.id)}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>{workspace.name}</span>
+                      {workspace.isDefault && (
+                        <Badge variant="secondary" className="text-xs">
+                          Default
+                        </Badge>
+                      )}
+                    </div>
+                    {workspace.id === currentWorkspaceId && (
+                      <Badge variant="default" className="text-xs">
+                        Active
+                      </Badge>
+                    )}
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
@@ -107,7 +143,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroup>
         ))}
 
-       {/* <SidebarGroup>
+        {/* <SidebarGroup>
           <SidebarGroupLabel>Usage</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>

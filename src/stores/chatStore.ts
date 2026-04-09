@@ -36,6 +36,7 @@ interface ChatState {
 const DEFAULT_SYSTEM_PROMPT = 'You are a helpful AI assistant.';
 const DEFAULT_TEMPERATURE = 0.7;
 const DEFAULT_MAX_TOKENS = 2048;
+const DEFAULT_MODEL = 'glm-5.1';
 
 export const useChatStore = create<ChatState>()(
   persist(
@@ -43,7 +44,7 @@ export const useChatStore = create<ChatState>()(
       messages: [],
       isRecording: false,
       isProcessing: false,
-      selectedModel: 'gpt-4',
+      selectedModel: DEFAULT_MODEL,
       systemPrompt: DEFAULT_SYSTEM_PROMPT,
       temperature: DEFAULT_TEMPERATURE,
       maxTokens: DEFAULT_MAX_TOKENS,
@@ -89,7 +90,7 @@ export const useChatStore = create<ChatState>()(
           messages: [],
           isRecording: false,
           isProcessing: false,
-          selectedModel: 'gpt-4',
+          selectedModel: DEFAULT_MODEL,
           systemPrompt: DEFAULT_SYSTEM_PROMPT,
           temperature: DEFAULT_TEMPERATURE,
           maxTokens: DEFAULT_MAX_TOKENS,

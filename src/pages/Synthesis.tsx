@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AudioPlayer } from '@/components/features/audio/AudioPlayer';
 import { toast } from '@/hooks/use-toast';
+import { useWorkspaceStore } from '@/stores/workspaceStore';
 import {
   Volume2,
   Download,
@@ -102,6 +103,8 @@ type SynthesisHistoryItem = {
 };
 
 export default function Synthesis() {
+  const { currentWorkspaceId } = useWorkspaceStore();
+
   const [inputText, setInputText] = useState<string>('');
   const [selectedModel, setSelectedModel] = useState<string>('tts-1');
   const [selectedVoice, setSelectedVoice] = useState<string>('alloy');
@@ -120,12 +123,12 @@ export default function Synthesis() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const { data: models = [], isLoading: isLoadingModels } = useQuery({
-    queryKey: ['models', 'tts'],
+    queryKey: ['models', 'tts', currentWorkspaceId],
     queryFn: () => modelsService.getLocalModels('text-to-speech'),
   });
 
   const { data: voices = [], isLoading: isLoadingVoices } = useQuery({
-    queryKey: ['models', 'voices'],
+    queryKey: ['models', 'voices', currentWorkspaceId],
     queryFn: () => modelsService.getAudioVoices(),
   });
 

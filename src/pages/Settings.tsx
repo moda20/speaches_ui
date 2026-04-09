@@ -9,15 +9,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useSettingsStore } from '@/stores';
+import { useSettingsStore, useWorkspaceStore } from '@/stores';
 import { useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { healthService } from '@/services/health';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Loader2, Trash2 } from 'lucide-react';
+import { WorkspaceCreateDialog } from '@/components/workspace/WorkspaceCreateDialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 export default function Settings() {
   const { language, timezone, dateFormat, density, updateSettings } = useSettingsStore();
+  const { workspaces, currentWorkspaceId, setCurrentWorkspaceId, removeWorkspace } =
+    useWorkspaceStore();
 
   const {
     data: healthStatus,
@@ -63,7 +74,6 @@ export default function Settings() {
         <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-muted-foreground">Manage your application preferences</p>
       </div>
-
 
       <Card>
         <CardHeader>
@@ -131,6 +141,71 @@ export default function Settings() {
               </div>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle>Workspaces</CardTitle>
+          <WorkspaceCreateDialog />
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Target URL</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {workspaces.map((workspace) => (
+                <TableRow key={workspace.id}>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      {workspace.name}
+                      {workspace.isDefault && (
+                        <Badge variant="secondary" className="text-xs">
+                          Default
+                        </Badge>
+                      )}
+                      {workspace.id === currentWorkspaceId && (
+                        <Badge variant="default" className="text-xs">
+                          Current
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-mono text-xs">{workspace.targetUrl}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`h-2 w-2 rounded-full ${
+                          workspace.id === currentWorkspaceId ? 'bg-green-500' : 'bg-gray-300'
+                        }`}
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {workspace.id === currentWorkspaceId ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {!workspace.isDefault && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeWorkspace(workspace.id)}
+                        disabled={workspace.id === currentWorkspaceId}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
 

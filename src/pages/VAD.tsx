@@ -16,10 +16,12 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Play, Download } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import type { components } from '@/types/api';
+import { useWorkspaceStore } from '@/stores/workspaceStore';
 
 type SpeechTimestamp = components['schemas']['SpeechTimestamp'];
 
 export default function VAD() {
+  const { currentWorkspaceId } = useWorkspaceStore();
   const queryClient = useQueryClient();
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -38,7 +40,7 @@ export default function VAD() {
   >([]);
 
   const { data: models = [] } = useQuery({
-    queryKey: ['models', 'vad'],
+    queryKey: ['models', 'vad', currentWorkspaceId],
     queryFn: () => modelsService.getLocalModels(),
   });
 

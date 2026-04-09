@@ -1,12 +1,13 @@
 import axios from 'axios';
 import env from './env';
+import { useWorkspaceStore } from '@/stores/workspaceStore';
 
 export const api = axios.create({
   baseURL: env.VITE_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000,
+  timeout: 60000,
 });
 
 api.interceptors.request.use((config) => {
@@ -15,6 +16,15 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem('authToken');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  const workspaceStore = useWorkspaceStore.getState();
+  const workspaceUrl = workspaceStore.getCurrentApiUrl();
+  config.baseURL = workspaceUrl;
+
+  const currentWorkspaceId = workspaceStore.currentWorkspaceId;
+  if (currentWorkspaceId) {
+    config.headers['X-Workspace-ID'] = currentWorkspaceId;
   }
 
   return config;

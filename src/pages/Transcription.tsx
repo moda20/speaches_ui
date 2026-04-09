@@ -22,6 +22,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { FileUpload } from '@/components/features/upload/FileUpload';
 import { AudioPlayer } from '@/components/features/audio/AudioPlayer';
 import { toast } from '@/hooks/use-toast';
+import { useWorkspaceStore } from '@/stores/workspaceStore';
 import {
   Mic,
   FileText,
@@ -69,6 +70,8 @@ type TranscriptionHistoryItem = {
 };
 
 export default function Transcription() {
+  const { currentWorkspaceId } = useWorkspaceStore();
+
   const [mode, setMode] = useState<'transcribe' | 'translate'>('transcribe');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string>('');
@@ -90,7 +93,7 @@ export default function Transcription() {
   const uploadProgress = useState(0)[0];
 
   const { data: models = [], isLoading: isLoadingModels } = useQuery({
-    queryKey: ['models', 'asr'],
+    queryKey: ['models', 'asr', currentWorkspaceId],
     queryFn: () => modelsService.getLocalModels('automatic-speech-recognition'),
   });
 

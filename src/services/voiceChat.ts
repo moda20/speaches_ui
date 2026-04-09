@@ -7,9 +7,23 @@ type ChatCompletionMessageParam =
   | components['schemas']['ChatCompletionAssistantMessageParam']
   | components['schemas']['ChatCompletionSystemMessageParam'];
 
+type MessageContent =
+  | string
+  | Array<{
+      type: string;
+      input_audio?: {
+        data: string;
+        format: string;
+      };
+      text?: string;
+    }>;
+
 export interface ChatCompletionOptions {
   model: string;
-  messages: ChatCompletionMessageParam[];
+  messages: Array<{
+    role: string;
+    content: MessageContent;
+  }>;
   temperature?: number;
   max_tokens?: number;
   stream?: boolean;
@@ -17,6 +31,8 @@ export interface ChatCompletionOptions {
     voice: string;
     format?: string;
   };
+  transcription_model?: string;
+  speech_model?: string;
 }
 
 export interface VoiceChatService {
@@ -38,6 +54,8 @@ export const voiceChatService: VoiceChatService = {
           ...(options.max_tokens && { max_tokens: options.max_tokens }),
           stream: true,
           ...(options.audio && { audio: options.audio }),
+          ...(options.transcription_model && { transcription_model: options.transcription_model }),
+          ...(options.speech_model && { speech_model: options.speech_model }),
         },
         {
           responseType: 'stream',
@@ -99,6 +117,8 @@ export const voiceChatService: VoiceChatService = {
       ...(options.max_tokens && { max_tokens: options.max_tokens }),
       stream: false,
       ...(options.audio && { audio: options.audio }),
+      ...(options.transcription_model && { transcription_model: options.transcription_model }),
+      ...(options.speech_model && { speech_model: options.speech_model }),
     });
 
     return response.data;

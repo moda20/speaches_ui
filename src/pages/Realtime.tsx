@@ -17,8 +17,10 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Play, Square, Mic, Volume2, Wifi, WifiOff, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useWorkspaceStore } from '@/stores/workspaceStore';
 
 export default function Realtime() {
+  const { currentWorkspaceId } = useWorkspaceStore();
   const [selectedModel, setSelectedModel] = useState('');
   const [isConnected, setIsConnected] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -32,7 +34,7 @@ export default function Realtime() {
   const animationFrameRef = useRef<number | undefined>(undefined);
 
   const { data: models = [] } = useQuery({
-    queryKey: ['models', 'realtime'],
+    queryKey: ['models', 'realtime', currentWorkspaceId],
     queryFn: () => modelsService.getLocalModels(),
   });
 

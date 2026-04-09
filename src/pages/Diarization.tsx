@@ -26,8 +26,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, Download, Users } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useWorkspaceStore } from '@/stores/workspaceStore';
 
 export default function Diarization() {
+  const { currentWorkspaceId } = useWorkspaceStore();
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -41,7 +43,7 @@ export default function Diarization() {
   const [currentTime, setCurrentTime] = useState(0);
 
   const { data: models = [] } = useQuery({
-    queryKey: ['models', 'diarization'],
+    queryKey: ['models', 'diarization', currentWorkspaceId],
     queryFn: () => modelsService.getLocalModels(),
   });
 

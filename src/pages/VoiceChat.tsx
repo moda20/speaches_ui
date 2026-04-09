@@ -28,6 +28,7 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { useWorkspaceStore } from '@/stores/workspaceStore';
 import {
   Send,
   Mic,
@@ -48,6 +49,7 @@ import { ChatMessage } from '@/components/features/chat/ChatMessage';
 import { ChatHistory } from '@/components/features/chat/ChatHistory';
 
 export default function VoiceChat() {
+  const { currentWorkspaceId } = useWorkspaceStore();
   const queryClient = useQueryClient();
   const scrollRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -94,13 +96,18 @@ export default function VoiceChat() {
   } = useAudioRecorder();
 
   const { data: models = [] } = useQuery({
-    queryKey: ['models'],
+    queryKey: ['models', currentWorkspaceId],
     queryFn: () => modelsService.getLocalModels(),
   });
 
-  const chatModels = models.filter(
-    (m) => m.task === 'automatic-speech-recognition' || m.id.includes('chat')
-  );
+  const chatModels = [
+    { id: 'glm-5.1', name: 'GLM-5.1 (Flagship)' },
+    { id: 'glm-4.7', name: 'GLM-4.7' },
+    { id: 'glm-4v-turbo', name: 'GLM-4V-Turbo (Multimodal)' },
+    { id: 'gpt-4o', name: 'GPT-4o (OpenAI)' },
+    { id: 'gpt-4o-mini', name: 'GPT-4o-mini (OpenAI)' },
+    { id: 'gpt-4-turbo', name: 'GPT-4 Turbo (OpenAI)' },
+  ];
 
   const transcriptionModels = models.filter(
     (m) => m.task === 'automatic-speech-recognition' || m.id.includes('whisper')
@@ -141,10 +148,16 @@ export default function VoiceChat() {
   }, [isAudioRecording, setIsRecording]);
 
   const chatMutation = useMutation({
-    mutationFn: async ({ content, audioData }: { content: string; audioData?: string }) => {
+    mutationFn: async ({
+      content,
+      audioData,
+    }: {
+      content: string | Array<any>;
+      audioData?: string;
+    }) => {
       const userMessage = {
         role: 'user' as const,
-        content,
+        content: typeof content === 'string' ? content : '[Audio message]',
         audioUrl: audioData,
       };
       addMessage(userMessage);
@@ -170,8 +183,10 @@ export default function VoiceChat() {
             stream: true,
             audio: {
               voice: selectedVoice,
-              format: 'mp3',
+              format: 'pcm16',
             },
+            transcription_model: selectedTranscriptionModel || 'whisper-1',
+            speech_model: selectedSpeechModel || 'tts-1',
           },
           (chunk) => {
             try {
@@ -220,6 +235,8 @@ export default function VoiceChat() {
               voice: selectedVoice,
               format: 'mp3',
             },
+            transcription_model: selectedTranscriptionModel || 'whisper-1',
+            speech_model: selectedSpeechModel || 'tts-1',
           },
           () => {}
         );
@@ -253,16 +270,45 @@ export default function VoiceChat() {
     }, 100);
   };
 
-  const handleSend = async (audioData?: string) => {
+  const blobUrlToBase64 = async (url: string): Promise<string> => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const arrayBuffer = await blob.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
+    let binary = '';
+    for (let i = 0; i < uint8Array.length; i++) {
+      binary += String.fromCharCode(uint8Array[i]);
+    }
+    return btoa(binary);
+  };
+
+  const handleSend = async (audioData?: string | null) => {
     if (!inputText.trim() && !audioData) return;
 
-    const content = inputText.trim() || '[Audio message]';
+    let content: string | Array<any>;
+
+    if (audioData) {
+      const base64Audio = await blobUrlToBase64(audioData);
+
+      content = [
+        {
+          type: 'input_audio',
+          input_audio: {
+            data: base64Audio,
+            format: 'mp3',
+          },
+        },
+      ];
+    } else {
+      content = inputText.trim();
+    }
+
     setInputText('');
     setIsProcessing(true);
     resetRecording();
 
     try {
-      await chatMutation.mutateAsync({ content, audioData });
+      await chatMutation.mutateAsync({ content, audioData: audioData || undefined });
     } catch (error) {
       console.error('Chat error:', error);
     }
@@ -270,12 +316,10 @@ export default function VoiceChat() {
 
   const handleRecord = async () => {
     if (isAudioRecording) {
-      stopRecording();
-      setTimeout(() => {
-        if (audioUrl) {
-          handleSend(audioUrl);
-        }
-      }, 100);
+      await stopRecording();
+      if (audioUrl) {
+        handleSend(audioUrl);
+      }
     } else {
       await startRecording();
     }
@@ -512,7 +556,10 @@ export default function VoiceChat() {
                     className="min-h-[44px] resize-none"
                     rows={1}
                   />
-                  <Button onClick={() => handleSend()} disabled={isProcessing || !inputText.trim()}>
+                  <Button
+                    onClick={() => handleSend(audioUrl)}
+                    disabled={isProcessing || (!inputText.trim() && !audioUrl)}
+                  >
                     <Send className="h-4 w-4" />
                   </Button>
                 </div>
@@ -525,19 +572,25 @@ export default function VoiceChat() {
           <Card>
             <CardContent className="p-4 space-y-4">
               <div>
-                <Label className="text-sm font-medium">Chat Model</Label>
-                <Select value={selectedModel} onValueChange={setSelectedModel}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {chatModels.map((model) => (
-                      <SelectItem key={model.id} value={model.id}>
-                        {model.id}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label className="text-sm font-medium">Chat Model (LLM)</Label>
+                <Input
+                  type="text"
+                  value={selectedModel}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  placeholder="e.g., glm-5.1, gpt-4o"
+                  list="chat-models"
+                  className="mt-1"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Enter any model ID from your configured LLM provider (Z.AI, OpenAI, etc.)
+                </p>
+                <datalist id="chat-models">
+                  {chatModels.map((model) => (
+                    <option key={model.id} value={model.id}>
+                      {model.name}
+                    </option>
+                  ))}
+                </datalist>
               </div>
 
               <div>

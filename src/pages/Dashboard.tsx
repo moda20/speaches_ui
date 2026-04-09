@@ -3,14 +3,17 @@ import { dashboardService } from '@/services/dashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Users, TrendingUp, DollarSign, AlertCircle } from 'lucide-react';
+import { useWorkspaceStore } from '@/stores/workspaceStore';
 
 export default function Dashboard() {
+  const { currentWorkspaceId } = useWorkspaceStore();
+
   const {
     data: metrics,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['dashboard', 'metrics'],
+    queryKey: ['dashboard', 'metrics', currentWorkspaceId],
     queryFn: () => dashboardService.getMetrics(),
   });
 

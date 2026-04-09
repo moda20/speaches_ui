@@ -21,8 +21,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, Upload, Sparkles, Download } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useWorkspaceStore } from '@/stores/workspaceStore';
 
 export default function Embeddings() {
+  const { currentWorkspaceId } = useWorkspaceStore();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedModel, setSelectedModel] = useState('');
   const [selectedEmbeddingId, setSelectedEmbeddingId] = useState<string>('');
@@ -32,7 +34,7 @@ export default function Embeddings() {
   const [isBatchMode, setIsBatchMode] = useState(false);
 
   const { data: models = [] } = useQuery({
-    queryKey: ['models', 'embedding'],
+    queryKey: ['models', 'embedding', currentWorkspaceId],
     queryFn: () => modelsService.getLocalModels(),
   });
 

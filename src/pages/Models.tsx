@@ -19,37 +19,39 @@ import { VoicesTab } from '@/components/features/models/VoicesTab';
 import { RemoteModelsTab } from '@/components/features/models/RemoteModelsTab';
 import { RunningModelsTab } from '@/components/features/models/RunningModelsTab';
 import { TASK_OPTIONS } from '@/components/features/models/constants';
+import { useWorkspaceStore } from '@/stores/workspaceStore';
 
 export default function Models() {
+  const { currentWorkspaceId } = useWorkspaceStore();
   const [activeTab, setActiveTab] = useState('local');
   const [taskFilter, setTaskFilter] = useState<string>('all');
 
   const { refetch: refetchLocalModels } = useQuery({
-    queryKey: ['models', 'local', taskFilter],
+    queryKey: ['models', 'local', taskFilter, currentWorkspaceId],
     queryFn: () => modelsService.getLocalModels(taskFilter === 'all' ? undefined : taskFilter),
     enabled: false,
   });
 
   const { refetch: refetchAudioModels } = useQuery({
-    queryKey: ['models', 'audio'],
+    queryKey: ['models', 'audio', currentWorkspaceId],
     queryFn: () => modelsService.getAudioModels(),
     enabled: false,
   });
 
   const { refetch: refetchVoices } = useQuery({
-    queryKey: ['models', 'voices'],
+    queryKey: ['models', 'voices', currentWorkspaceId],
     queryFn: () => modelsService.getAudioVoices(),
     enabled: false,
   });
 
   const { refetch: refetchRemoteModels } = useQuery({
-    queryKey: ['models', 'remote', taskFilter],
+    queryKey: ['models', 'remote', taskFilter, currentWorkspaceId],
     queryFn: () => modelsService.getRemoteModels(taskFilter === 'all' ? undefined : taskFilter),
     enabled: false,
   });
 
   const { refetch: refetchRunningModels } = useQuery({
-    queryKey: ['models', 'running'],
+    queryKey: ['models', 'running', currentWorkspaceId],
     queryFn: () => modelsService.getRunningModels(),
     enabled: false,
   });
