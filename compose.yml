@@ -1,0 +1,14 @@
+services:
+  speaches_ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ghcr.io/moda20/speaches_ui:latest
+    container_name: speaches_ui
+    restart: always
+    environment:
+      VITE_API_URL: http://localhost:3000
+      VITE_APP_NAME: Speaches UI
+    ports:
+      - "8282:80"
+
