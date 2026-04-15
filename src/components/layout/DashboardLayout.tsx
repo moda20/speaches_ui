@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { useBreadcrumbs } from '@/hooks/useBreadcrumbs';
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/react"
 
 export default function DashboardLayout() {
   const breadcrumbs = useBreadcrumbs();
