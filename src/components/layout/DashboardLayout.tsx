@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { useBreadcrumbs } from '@/hooks/useBreadcrumbs';
+import { Analytics } from "@vercel/analytics/next"
 
 export default function DashboardLayout() {
   const breadcrumbs = useBreadcrumbs();
@@ -18,6 +19,7 @@ export default function DashboardLayout() {
   return (
     <SidebarProvider>
       <AppSidebar />
+      <Analytics/>
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b">
           <div className="flex items-center gap-2 px-4">
